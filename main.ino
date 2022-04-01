@@ -1,22 +1,9 @@
-#include <max6675.h>
+//#include <max6675.h>
 #include <Wire.h> 
-#include <LiquidCrystal_I2C.h>
+//#include <LiquidCrystal_I2C.h>
 #include <SoftwareSerial.h>
-#include <AccelStepper.h>
-#include <GyverPID.h>
-
-GyverPID PID (1.0 , 1, 0, 10000);
-
-#define IN1 24
-#define IN2 25
-#define IN3 26
-#define IN4 27
-
-AccelStepper DRIVE (8, IN1, IN3, IN2, IN4);
-
-// Количество шагов максимум 2960
-// На один градус цельсия 2.96 шага
-
+#include <EncButton.h>
+#include "Furnace.h"
 
 LiquidCrystal_I2C lcd(0x27,20,4); 
 
@@ -38,40 +25,32 @@ MAX6675 thermocouple_3(thermoCLK_3, thermoCS_3, thermoDO_3);
 
 const int buttonPin = 11; // Пин кнопки
 
+EncButton<EB_TICK, 2, 3, 4> enc;
+
+bool var = true;
 
 void setup()
 {
-lcd.init();   
-DRIVE.setMaxSpeed(200.0);
-DRIVE.setAcceleration(3.0);
-DRIVE.setSpeed(1);
-
-pid.setDirection (NORMAL);
+lcd.init();
 }
-
 
 void loop() 
 {
-int T1 = thermocouple_1.readCelsius();
-int T2 = thermocouple_2.readCelsius();
-int T3 = thermocouple_3.readCelsius();
-
-  lcd.backlight();
-
-  lcd.setCursor(0,0);
-  lcd.print("T1:");
-  lcd.print(T1);
-  lcd.print(char(223));
-
-  lcd.setCursor(0,1);
-  lcd.print("T2:");
-  lcd.print(T2);
-  lcd.print(char(223));
-
-  lcd.print(" T3:");
-  lcd.print(T3);
-  lcd.print(char(223));
-
+  enc.tick();
+  if(enc.click() and var!=false)
+    var=false;
+  else if(enc.click() and var!=true)
+    var=true;
+  
+  if(var)
+  {
+    Serial.println("regim 1");
+    messure(lcd, thermocouple_1, thermocouple_2, thermocouple_3);
+  }
+  else
+  {
+    Serial.println("regim 2");
+  }
   delay(500);
   lcd.clear(); 
 }
