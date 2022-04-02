@@ -1,9 +1,24 @@
-//#include <max6675.h>
+#include <max6675.h>
 #include <Wire.h> 
-//#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal_I2C.h>
 #include <SoftwareSerial.h>
 #include <EncButton.h>
 #include "Furnace.h"
+
+#include <AccelStepper.h>
+#include <GyverPID.h>
+
+GyverPID PID (1.0 , 1, 0, 10000);
+
+#define IN1 24
+#define IN2 25
+#define IN3 26
+#define IN4 27
+
+AccelStepper DRIVE (8, IN1, IN3, IN2, IN4);
+
+// Количество шагов максимум 2960
+// На один градус цельсия 2.96 шага
 
 LiquidCrystal_I2C lcd(0x27,20,4); 
 
