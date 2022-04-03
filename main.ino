@@ -35,6 +35,7 @@ int thermoCS_3 = 9;
 int thermoCLK_3 = 10;
 
 int Enc_Temp = 0; // Переменная для выставления температуры через энкодер
+int piezoPin = 20;
 
 MAX6675 thermocouple_1(thermoCLK_1, thermoCS_1, thermoDO_1);
 MAX6675 thermocouple_2(thermoCLK_2, thermoCS_2, thermoDO_2);
@@ -66,7 +67,10 @@ void loop()
     Serial.println("MONITORNG");
     
     if(enc.click())  // Если кнопка была нажата
-       var=false; // Выходим из режима
+       var=false;
+
+       tone(piezoPin, 1000, 200);
+        // Выходим из режима
 
     messure(lcd, thermocouple_1, thermocouple_2, thermocouple_3);
   }
@@ -84,11 +88,13 @@ void loop()
     // Если кнопка была нажата
     if(enc.click())
     {
+      tone(piezoPin, 2000, 200);
       var=true;               // Выходим из режима
       PID.setpoint = Enc_Temp; // Передаем выставленую температуру в ПИД
     }
 
   }
+  
   lcd.clear(); 
   DRIVE.moveTo(PID.getResult);
 }
