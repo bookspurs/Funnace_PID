@@ -1,4 +1,3 @@
-Vlad Pinchuk, [03.04.2022 19:01]
 #include <max6675.h>
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
@@ -43,9 +42,9 @@ MAX6675 thermocouple_3(thermoCLK_3, thermoCS_3, thermoDO_3);
 
 const int buttonPin = 11; // Пин кнопки
 
-EncButton<EB_TICK, 2, 3, 4> enc;
+EncButton<EB_TICK, 2, 3, 4> enc; //объявления энкодера с кнопкой
 
-bool var = true;
+bool var = true; //true - режим мониторинга; false - режим выставления температуры
 
 void setup()
 {
@@ -60,15 +59,15 @@ void loop()
 {
   PID.input = T1; // Входное значение для регулятора
 
-  enc.tick();
-  if(enc.click() and var!=false)
-    var=false;
-  else if(enc.click() and var!=true)
-    var=true;
+  enc.tick(); // проверка состояния энкодера
   
   if(var)
   {
     Serial.println("MONITORNG");
+    
+    if(enc.click())  // Если кнопка была нажата
+       var=false; // Выходим из режима
+
     messure(lcd, thermocouple_1, thermocouple_2, thermocouple_3);
   }
   else
@@ -82,14 +81,14 @@ void loop()
     lcd.setCursor(0,1);
     lcd.print(Enc_Temp);
 
-    // Если кнопка была снова нажата
-    if(enc.click(){
-      var=false;               // Выходим из режима
+    // Если кнопка была нажата
+    if(enc.click())
+    {
+      var=true;               // Выходим из режима
       PID.setpoint = Enc_Temp; // Передаем выставленую температуру в ПИД
-      }
+    }
 
   }
-
   lcd.clear(); 
   DRIVE.moveTo(PID.getResult);
 }
