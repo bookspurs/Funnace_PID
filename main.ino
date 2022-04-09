@@ -1,6 +1,4 @@
-#include <max6675.h>
 #include <Wire.h> 
-#include <LiquidCrystal_I2C.h>
 #include <SoftwareSerial.h>
 #include <EncButton.h>
 #include "Furnace.h"
@@ -58,7 +56,7 @@ PID.setLimits(0,2960);    // Пределы управления
 
 void loop() 
 {
-  PID.input = T1; // Входное значение для регулятора
+  PID.input = thermocouple_1.readCelsius(); // Входное значение для регулятора
 
   enc.tick(); // проверка состояния энкодера
   
@@ -78,12 +76,24 @@ void loop()
   {
     // При переходе в режим обнуляем ПИД
     PID.setpoint = 0;
-
+    
     Serial.println("SET TEMP");
     lcd.setCursor(0,0);
-    lcd.print("SET TEMP:")
+    lcd.print("SET TEMP:");
     lcd.setCursor(0,1);
     lcd.print(Enc_Temp);
+
+    if(enc.left()==true) //если енкодер повернуть влево для уменьшении темературы 
+      if(Enc_Temp==0) //если была достигнута нижняя граница, то делаем ничего(выводим)
+        Serial.println(Enc_Temp);
+      else //если нет, то уменьшанем температуру посредством обращения к переменной Enc_Temp
+        Enc_Temp--; // Enc_Temp=Enc_Temp-1
+    if(enc.right()==true) //если енкодер повернуть вправо для увеличении темературы 
+      if(Enc_Temp==1000) //если была достигнута вверхняя граница, то делаем ничего(выводим)
+        Serial.println(Enc_Temp);
+      else //если нет, то увеличиваем температуру посредством обращения к переменной Enc_Temp
+        Enc_Temp++; // Enc_Temp=Enc_Temp+1
+
 
     // Если кнопка была нажата
     if(enc.click())
